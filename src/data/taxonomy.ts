@@ -14,6 +14,8 @@ export const CATEGORIES: Category[] = [
   { slug: 'breakfast', name: 'Breakfast spot', plural: 'Breakfast Spots', group: 'food', schemaType: 'Restaurant', intro: 'Where locals actually go for breakfast, from early-opening diners to off-Strip favorites.' },
   { slug: 'brunch', name: 'Brunch spot', plural: 'Brunch Spots', group: 'food', schemaType: 'Restaurant', intro: 'Weekend brunch across the Valley, checked for wait times, prices and who each spot suits.' },
   { slug: 'restaurants', name: 'Restaurant', plural: 'Restaurants', group: 'food', schemaType: 'Restaurant', intro: 'Restaurants worth the drive, picked and verified by a local.' },
+  { slug: 'korean-bbq', name: 'Korean BBQ spot', plural: 'Korean BBQ Restaurants', group: 'food', schemaType: 'Restaurant', intro: 'All-you-can-eat and à la carte Korean BBQ across the Valley, from Spring Mountain Road to the Strip.' },
+  { slug: 'coffee', name: 'Coffee & tea shop', plural: 'Coffee & Tea Shops', group: 'food', schemaType: 'CafeOrCoffeeShop', intro: 'Coffee shops, tea bars and boba spots locals actually go to.' },
   { slug: 'plumbers', name: 'Plumber', plural: 'Plumbers', group: 'services', schemaType: 'Plumber', intro: 'Licensed Las Vegas plumbers, checked against the Nevada State Contractors Board.' },
   { slug: 'locksmiths', name: 'Locksmith', plural: 'Locksmiths', group: 'services', schemaType: 'Locksmith', intro: 'Local locksmiths for homes, cars and businesses, including 24/7 options.' },
   { slug: 'house-cleaning', name: 'House cleaner', plural: 'House Cleaning Services', group: 'services', schemaType: 'HomeAndConstructionBusiness', intro: 'House cleaning services across Las Vegas and Henderson.' },
@@ -30,6 +32,7 @@ export const AREAS: Area[] = [
   { slug: 'north-las-vegas', name: 'North Las Vegas', intro: 'North Las Vegas and Aliante.' },
   { slug: 'centennial-hills', name: 'Centennial Hills', intro: 'Centennial Hills and the northwest Valley.' },
   { slug: 'southwest', name: 'Southwest', intro: 'The southwest Valley, from Blue Diamond Road to Mountain\'s Edge.' },
+  { slug: 'the-strip', name: 'The Strip', intro: 'On and just off Las Vegas Boulevard, from Sahara to the south Strip.' },
   { slug: 'westside', name: 'Westside', intro: 'Charleston Heights and the west side, between downtown and Summerlin.' },
 ];
 
