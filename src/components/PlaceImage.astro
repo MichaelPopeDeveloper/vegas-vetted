@@ -1,0 +1,30 @@
+---
+// Shows the business photo if one is set (frontmatter `image`), otherwise a branded placeholder
+// with the business initials in its category colour. Never stock or scraped photos.
+import type { CollectionEntry } from 'astro:content';
+interface Props { place: CollectionEntry<'places'>; eager?: boolean; tall?: boolean }
+const { place, eager = false, tall = false } = Astro.props;
+const d = place.data;
+const palette: Record<string, [string, string]> = {
+  breakfast: ['#f6dfc4', '#9a4a12'],
+  brunch: ['#f6dfc4', '#9a4a12'],
+  restaurants: ['#e8dccb', '#5b4636'],
+  'korean-bbq': ['#f3d3c9', '#9c2f1c'],
+  coffee: ['#e3d9cc', '#4a3426'],
+};
+const [bg, fg] = palette[d.category] ?? ['#e7dfd2', '#3d3630'];
+const initials = d.name.replace(/^The\s+/i, '').split(/\s+/).filter((w) => /[A-Za-z0-9]/.test(w)).slice(0, 2).map((w) => w.replace(/[^A-Za-z0-9]/g, '')[0]).join('').toUpperCase();
+---
+{d.image ? (
+  <img src={d.image} alt={d.imageAlt ?? d.name} width="1200" height={tall ? 600 : 675} loading={eager ? 'eager' : 'lazy'} fetchpriority={eager ? 'high' : 'auto'} decoding="async" style="width:100%;height:100%;object-fit:cover" />
+) : (
+  <div class="ph" style={`background:${bg};color:${fg}`} role="img" aria-label={`${d.name} (photo coming soon)`}>
+    <span class="ph-initials">{initials}</span>
+    <span class="ph-note">Photo coming soon</span>
+  </div>
+)}
+<style>
+  .ph { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
+  .ph-initials { font: 700 clamp(2.5rem, 8vw, 4rem)/1 var(--serif); letter-spacing: -0.02em; }
+  .ph-note { font-size: 12px; opacity: 0.75; }
+</style>

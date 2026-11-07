@@ -2,6 +2,7 @@
 import { getCollection, render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import PlaceImage from '../../components/PlaceImage.astro';
 import { categoryBySlug, areaBySlug } from '../../data/taxonomy';
 import { localBusiness, breadcrumbs, monthYear, mapsUrl, placeUrl, listUrl } from '../../lib/schema';
 
@@ -28,7 +29,8 @@ const hasTel = !!tel && /\d{7,}/.test(tel);
 const desc = `${d.name}: ${cat.name.toLowerCase()} in ${area.name}, Las Vegas. Hours, phone and our take, verified ${monthYear(d.verified)}.`;
 ---
 <Base title={d.locations.length ? `${d.name} – Las Vegas (${d.locations.length + 1} Locations)` : `${d.name} – ${area.name}, Las Vegas`} description={desc} noindex={d.sample} schema={[localBusiness(place), breadcrumbs(crumbs)]}>
-  {d.image && <img src={d.image} alt={d.name} width="1200" height="600" style="width:100%;max-height:420px;object-fit:cover" fetchpriority="high" />}
+  <div style="aspect-ratio:2/1;max-height:420px;width:100%;overflow:hidden"><PlaceImage place={place} eager tall /></div>
+  {d.imageCredit && <p class="muted" style="font-size:12px;text-align:right;padding:4px 16px 0">{d.imageCredit}</p>}
   <div class="narrow stack" style="padding-top:16px;padding-bottom:32px">
     <Breadcrumbs items={crumbs} />
     <h1>{d.name}</h1>

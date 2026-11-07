@@ -1,0 +1,32 @@
+---
+// Directory of every business, grouped by category. Gives Google one crawlable page that links to every listing.
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import { CATEGORIES, areaBySlug, placeAreas } from '../../data/taxonomy';
+import { placeUrl, breadcrumbs, itemList } from '../../lib/schema';
+
+const places = (await getCollection('places')).filter((p) => !p.data.sample).sort((a, b) => a.data.name.localeCompare(b.data.name));
+const groups = CATEGORIES.map((c) => ({ cat: c, items: places.filter((p) => p.data.category === c.slug) })).filter((g) => g.items.length);
+const crumbs = [{ name: 'Home', href: '/' }, { name: 'All businesses', href: '/biz/' }];
+---
+<Base title="All Las Vegas Businesses We List" description={`Every Las Vegas business on the guide, ${places.length} so far, grouped by category with neighborhoods and details.`} schema={[breadcrumbs(crumbs), itemList('All businesses', places)]}>
+  <div class="narrow stack" style="padding-top:16px;padding-bottom:32px">
+    <Breadcrumbs items={crumbs} />
+    <h1>All businesses</h1>
+    <p class="muted">{places.length} Las Vegas businesses so far, each with verified details. More are added every week.</p>
+    {groups.map((g) => (
+      <section class="stack" style="gap:10px">
+        <h2 style="font-size:22px"><a href={`/${g.cat.slug}/`} style="text-decoration:none">{g.cat.plural}</a></h2>
+        <ul class="facts" style="list-style:none">
+          {g.items.map((p) => (
+            <li style="display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--sand-2)">
+              <a href={placeUrl(p)} style="font-weight:600">{p.data.name}</a>
+              <span class="muted" style="font-size:14px;text-align:right">{placeAreas(p.data).map((a) => areaBySlug(a)?.name).filter((v, i, arr) => arr.indexOf(v) === i).join(', ')}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))}
+  </div>
+</Base>

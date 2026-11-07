@@ -24,7 +24,9 @@ const places = defineCollection({
     goodFor: z.array(z.string()).default([]),
     license: z.string().optional(), // e.g. NV contractor license #
     geo: z.object({ lat: z.number(), lng: z.number() }).optional(),
-    image: z.string().optional(),
+    image: z.string().optional(), // e.g. /images/babystacks-cafe.jpg (put the file in public/images/)
+    imageAlt: z.string().optional(),
+    imageCredit: z.string().optional(), // e.g. "Photo courtesy of BabyStacks Cafe"
     // Extra locations for multi-location businesses (main location = the fields above)
     locations: z
       .array(z.object({ label: z.string(), area: z.enum(areaSlugs), address: z.string(), city: z.string().default('Las Vegas'), zip: z.string().optional(), phone: z.string().optional(), hours: z.string().optional(), note: z.string().optional() }))

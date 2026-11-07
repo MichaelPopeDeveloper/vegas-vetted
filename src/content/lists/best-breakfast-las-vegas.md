@@ -8,10 +8,6 @@ checked: 2026-11-06
 items:
   - original-pancake-house-spring-valley
   - babystacks-cafe
-  - sample-breakfast-3
-  - sample-breakfast-4
-  - sample-breakfast-5
-  - sample-breakfast-6
 faq:
   - q: "Where do locals eat breakfast off the Strip?"
     a: "[Short answer naming 2–3 spots from this list.]"
@@ -19,7 +15,7 @@ faq:
     a: "[Short answer.]"
   - q: "Where can a big group get breakfast?"
     a: "[Short answer.]"
-related: ["best-plumbers-las-vegas"]
+related: []
 ---
 
 [Two or three sentences on how you picked these spots: how many you visited, what you looked for, and when the list was last checked.]
