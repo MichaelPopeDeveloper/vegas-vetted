@@ -16,7 +16,7 @@ const { options, total } = Astro.props;
       group.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
       const { type, value } = btn.dataset;
       cards.forEach((c) => {
-        const show = type === 'all' || (type === 'area' ? c.dataset.area === value : (c.dataset.tags || '').split('|').includes(value || ''));
+        const show = type === 'all' || (type === 'area' ? (c.dataset.area || '').split('|').includes(value || '') : (c.dataset.tags || '').split('|').includes(value || ''));
         c.hidden = !show;
       });
     });

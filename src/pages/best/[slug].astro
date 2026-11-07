@@ -5,7 +5,7 @@ import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import PlaceCard from '../../components/PlaceCard.astro';
 import SignupInline from '../../components/SignupInline.astro';
 import FilterChips from '../../components/FilterChips.astro';
-import { categoryBySlug, areaBySlug } from '../../data/taxonomy';
+import { categoryBySlug, areaBySlug, placeAreas } from '../../data/taxonomy';
 import { itemList, faqPage, breadcrumbs, monthYear, listUrl } from '../../lib/schema';
 import { SITE } from '../../site.config';
 
@@ -28,12 +28,13 @@ const allLists = await getCollection('lists');
 const related = allLists.filter((l) => d.related.includes(l.id));
 
 // Filter chips: areas present in this list, then the most common tags
-const areaOpts = [...new Set(places.map((p) => p.data.area))].map((a) => ({ label: areaBySlug(a)!.name, type: 'area' as const, value: a }));
+const areaOpts = [...new Set(places.flatMap((p) => placeAreas(p.data)))].map((a) => ({ label: areaBySlug(a)!.name, type: 'area' as const, value: a }));
 const tagCounts = new Map<string, number>();
 places.forEach((p) => p.data.tags.forEach((t) => tagCounts.set(t, (tagCounts.get(t) ?? 0) + 1)));
 const tagOpts = [...tagCounts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3).map(([t]) => ({ label: t, type: 'tag' as const, value: t.toLowerCase() }));
 const splitAt = 5;
-const allSample = places.every((p) => p.data.sample);
+// Stay out of Google until the list has at least 5 real (non-sample) businesses
+const allSample = places.filter((p) => !p.data.sample).length < 5;
 ---
 <Base
   title={d.seoTitle ?? d.title}

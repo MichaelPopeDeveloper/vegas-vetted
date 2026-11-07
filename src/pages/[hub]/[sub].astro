@@ -6,16 +6,16 @@ import Base from '../../layouts/Base.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import PlaceCard from '../../components/PlaceCard.astro';
 import SignupInline from '../../components/SignupInline.astro';
-import { CATEGORIES, AREAS } from '../../data/taxonomy';
+import { CATEGORIES, AREAS, placeAreas } from '../../data/taxonomy';
 import { itemList, breadcrumbs } from '../../lib/schema';
 import { SITE } from '../../site.config';
 
 export async function getStaticPaths() {
   const places = await getCollection('places');
   return AREAS.flatMap((area) =>
-    CATEGORIES.filter((cat) => places.some((p) => p.data.area === area.slug && p.data.category === cat.slug)).map((cat) => ({
+    CATEGORIES.filter((cat) => places.some((p) => placeAreas(p.data).includes(area.slug) && p.data.category === cat.slug)).map((cat) => ({
       params: { hub: area.slug, sub: cat.slug },
-      props: { area, cat, places: places.filter((p) => p.data.area === area.slug && p.data.category === cat.slug) },
+      props: { area, cat, places: places.filter((p) => placeAreas(p.data).includes(area.slug) && p.data.category === cat.slug) },
     })),
   );
 }
@@ -27,7 +27,7 @@ const crumbs = [
   { name: area.name, href: `/${area.slug}/` },
   { name: cat.plural, href: `/${area.slug}/${cat.slug}/` },
 ];
-const thin = places.length < SITE.minListingsToIndex || places.every((p) => p.data.sample);
+const thin = places.filter((p) => !p.data.sample).length < SITE.minListingsToIndex;
 ---
 <Base title={`${h1}, NV`} description={`${cat.plural} in ${area.name}, Las Vegas, hand-picked and verified by a local.`} noindex={thin} schema={[itemList(h1, places), breadcrumbs(crumbs)]}>
   <div class="narrow stack" style="padding-top:16px;padding-bottom:32px">

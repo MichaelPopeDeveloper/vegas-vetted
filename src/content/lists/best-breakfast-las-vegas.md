@@ -6,8 +6,8 @@ category: breakfast
 topPick: "[Spot #1], for [one-line reason]. Off-Strip in Henderson? Jump to #4."
 checked: 2026-11-06
 items:
-  - sample-breakfast-1
-  - sample-breakfast-2
+  - original-pancake-house-spring-valley
+  - babystacks-cafe
   - sample-breakfast-3
   - sample-breakfast-4
   - sample-breakfast-5

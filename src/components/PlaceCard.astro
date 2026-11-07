@@ -1,7 +1,7 @@
 ---
 import type { CollectionEntry } from 'astro:content';
 import { render } from 'astro:content';
-import { areaBySlug } from '../data/taxonomy';
+import { areaBySlug, placeAreas } from '../data/taxonomy';
 import { placeUrl, mapsUrl } from '../lib/schema';
 
 interface Props { place: CollectionEntry<'places'>; rank?: number; headingLevel?: 'h2' | 'h3' }
@@ -12,7 +12,7 @@ const { Content } = await render(place);
 const H = headingLevel;
 const tel = d.phone?.replace(/[^\d+]/g, '');
 ---
-<li class="card" data-area={d.area} data-tags={d.tags.join('|').toLowerCase()} id={place.id}>
+<li class="card" data-area={placeAreas(d).join("|")} data-tags={d.tags.join('|').toLowerCase()} id={place.id}>
   <div class="card-media">
     {d.image ? <img src={d.image} alt={`${d.name}`} width="800" height="450" loading={rank && rank <= 1 ? 'eager' : 'lazy'} decoding="async" /> : <span>Photo coming soon</span>}
     {rank && <span class="rank" aria-label={`Number ${rank}`}>{rank}</span>}
@@ -23,7 +23,7 @@ const tel = d.phone?.replace(/[^\d+]/g, '');
       {d.price && <span class="muted">{d.price}</span>}
     </div>
     <div class="card-tags">
-      {area && <span class="tag">{area.name}</span>}
+      {area && <span class="tag">{area.name}{d.locations.length > 0 && ` + ${d.locations.length} more`}</span>}
       {d.tags.map((t) => <span class="tag tag-ok">{t}</span>)}
     </div>
     <div class="take"><Content /></div>

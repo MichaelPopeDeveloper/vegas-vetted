@@ -28,7 +28,13 @@ export const AREAS: Area[] = [
   { slug: 'chinatown', name: 'Chinatown', intro: 'Spring Mountain Road and the Chinatown corridor.' },
   { slug: 'spring-valley', name: 'Spring Valley', intro: 'Spring Valley and the southwest.' },
   { slug: 'north-las-vegas', name: 'North Las Vegas', intro: 'North Las Vegas and Aliante.' },
+  { slug: 'centennial-hills', name: 'Centennial Hills', intro: 'Centennial Hills and the northwest Valley.' },
+  { slug: 'southwest', name: 'Southwest', intro: 'The southwest Valley, from Blue Diamond Road to Mountain\'s Edge.' },
+  { slug: 'westside', name: 'Westside', intro: 'Charleston Heights and the west side, between downtown and Summerlin.' },
 ];
 
 export const categoryBySlug = (s: string) => CATEGORIES.find((c) => c.slug === s);
+// A place belongs to an area if its main location or any extra location is there
+export const placeAreas = (d: { area: string; locations?: { area: string }[] }) => [d.area, ...(d.locations ?? []).map((l) => l.area)];
+
 export const areaBySlug = (s: string) => AREAS.find((a) => a.slug === s);

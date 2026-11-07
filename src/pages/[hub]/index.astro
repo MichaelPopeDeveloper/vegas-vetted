@@ -5,14 +5,14 @@ import Base from '../../layouts/Base.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import PlaceCard from '../../components/PlaceCard.astro';
 import SignupInline from '../../components/SignupInline.astro';
-import { CATEGORIES, AREAS, type Category, type Area } from '../../data/taxonomy';
+import { CATEGORIES, AREAS, placeAreas, type Category, type Area } from '../../data/taxonomy';
 import { itemList, breadcrumbs, listUrl } from '../../lib/schema';
 import { SITE } from '../../site.config';
 
 export async function getStaticPaths() {
   const places = await getCollection('places');
   const cats = CATEGORIES.filter((c) => places.some((p) => p.data.category === c.slug));
-  const areas = AREAS.filter((a) => places.some((p) => p.data.area === a.slug));
+  const areas = AREAS.filter((a) => places.some((p) => placeAreas(p.data).includes(a.slug)));
   return [
     ...cats.map((c) => ({ params: { hub: c.slug }, props: { kind: 'category' as const, cat: c } })),
     ...areas.map((a) => ({ params: { hub: a.slug }, props: { kind: 'area' as const, area: a } })),
@@ -34,11 +34,11 @@ if (props.kind === 'category') {
   crumbName = c.plural;
   links = [
     ...lists.filter((l) => l.data.category === c.slug).map((l) => ({ name: l.data.title, href: listUrl(l) })),
-    ...AREAS.filter((a) => places.some((p) => p.data.area === a.slug)).map((a) => ({ name: `${c.plural} in ${a.name}`, href: `/${a.slug}/${c.slug}/` })),
+    ...AREAS.filter((a) => places.some((p) => placeAreas(p.data).includes(a.slug))).map((a) => ({ name: `${c.plural} in ${a.name}`, href: `/${a.slug}/${c.slug}/` })),
   ];
 } else {
   const a = props.area;
-  places = all.filter((p) => p.data.area === a.slug);
+  places = all.filter((p) => placeAreas(p.data).includes(a.slug));
   title = `Best of ${a.name}, Las Vegas: Food & Local Pros`;
   h1 = `${a.name}: the local guide`;
   intro = a.intro;
@@ -47,7 +47,7 @@ if (props.kind === 'category') {
 }
 const slug = props.kind === 'category' ? props.cat.slug : props.area.slug;
 const crumbs = [{ name: 'Home', href: '/' }, { name: crumbName, href: `/${slug}/` }];
-const thin = places.length < SITE.minListingsToIndex || places.every((p) => p.data.sample);
+const thin = places.filter((p) => !p.data.sample).length < SITE.minListingsToIndex;
 ---
 <Base title={title} description={`${intro} Hand-picked and verified by a local.`} noindex={thin} schema={[itemList(h1, places), breadcrumbs(crumbs)]}>
   <div class="narrow stack" style="padding-top:16px;padding-bottom:32px">

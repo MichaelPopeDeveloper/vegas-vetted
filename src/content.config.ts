@@ -25,6 +25,12 @@ const places = defineCollection({
     license: z.string().optional(), // e.g. NV contractor license #
     geo: z.object({ lat: z.number(), lng: z.number() }).optional(),
     image: z.string().optional(),
+    // Extra locations for multi-location businesses (main location = the fields above)
+    locations: z
+      .array(z.object({ label: z.string(), area: z.enum(areaSlugs), address: z.string(), city: z.string().default('Las Vegas'), zip: z.string().optional(), phone: z.string().optional(), hours: z.string().optional(), note: z.string().optional() }))
+      .default([]),
+    // true once the body is your own first-hand take (visit or call). false = researched summary.
+    firstHand: z.boolean().default(false),
     verified: z.coerce.date(), // date you last checked the facts
     sample: z.boolean().default(false), // placeholder entries are noindexed
   }),

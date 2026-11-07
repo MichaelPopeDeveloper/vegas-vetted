@@ -2,13 +2,13 @@
 import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import SignupInline from '../components/SignupInline.astro';
-import { AREAS, CATEGORIES, categoryBySlug } from '../data/taxonomy';
+import { AREAS, CATEGORIES, categoryBySlug, placeAreas } from '../data/taxonomy';
 import { listUrl, monthYear, abs } from '../lib/schema';
 import { SITE } from '../site.config';
 
 const lists = await getCollection('lists');
 const places = await getCollection('places');
-const areas = AREAS.filter((a) => places.some((p) => p.data.area === a.slug));
+const areas = AREAS.filter((a) => places.some((p) => placeAreas(p.data).includes(a.slug)));
 const services = CATEGORIES.filter((c) => c.group === 'services' && places.some((p) => p.data.category === c.slug));
 const website = {
   '@context': 'https://schema.org',
