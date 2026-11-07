@@ -13,11 +13,15 @@ const n = SITE.newsletter;
     </button>
   </div>
   <p>Plus {n.name} {n.cadence.toLowerCase()}. One email, no spam.</p>
-  <form method="post" action={n.action || undefined} data-newsletter>
+  <form method="post" action="/api/subscribe/" data-newsletter>
+    <input type="hidden" name="source" value="slidein" />
+    <input type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px" />
+
     <label class="sr-only" for="slidein-email">Email address</label>
     <input id="slidein-email" name="email" type="email" required autocomplete="email" placeholder="you@email.com" />
     <button class="btn btn-primary" type="submit">Send it</button>
   </form>
+  <p class="signup-msg" role="status" aria-live="polite" hidden style="margin-top:8px"></p>
 </aside>
 
 <script>

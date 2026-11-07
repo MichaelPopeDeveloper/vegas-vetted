@@ -1,11 +1,14 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
+import vercel from '@astrojs/vercel';
 import seoPostBuild from './src/integrations/seo-post-build.mjs';
 import { SITE } from './src/site.config.ts';
 
 export default defineConfig({
   site: SITE.url,
+  // Pages stay static; only routes with `export const prerender = false` (the newsletter API) run as a Vercel Function
+  adapter: vercel(),
   trailingSlash: 'always',
   build: { format: 'directory', inlineStylesheets: 'auto' },
   prefetch: { prefetchAll: false, defaultStrategy: 'hover' },

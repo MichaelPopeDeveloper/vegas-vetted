@@ -14,8 +14,6 @@ export const SITE = {
     cadence: 'Every Thursday',
     pitch: '5 new spots, 1 deal and 1 event each week.',
     leadMagnet: '25 Off-Strip Spots Locals Actually Go To',
-    // Paste your beehiiv / Kit form action URL here. Empty = forms show but do not submit.
-    action: '',
   },
   // Area x category pages with fewer listings than this are noindexed (thin/doorway risk)
   minListingsToIndex: 8,

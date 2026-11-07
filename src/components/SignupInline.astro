@@ -2,15 +2,20 @@
 import { SITE } from '../site.config';
 const n = SITE.newsletter;
 const id = `email-${Math.random().toString(36).slice(2, 8)}`;
+const { source = 'inline' } = Astro.props as { source?: string };
 ---
 <section class="signup" aria-labelledby={`${id}-h`}>
   <span class="kicker">Free · {n.cadence}</span>
   <h2 id={`${id}-h`}>Get {n.name}</h2>
   <p>{n.pitch} Join and get our "{n.leadMagnet}" list today.</p>
-  <form method="post" action={n.action || undefined} data-newsletter>
+  <form method="post" action="/api/subscribe/" data-newsletter>
+    <input type="hidden" name="source" value={source} />
+    <input type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px" />
+
     <label class="sr-only" for={id}>Email address</label>
     <input id={id} name="email" type="email" required autocomplete="email" placeholder="you@email.com" />
     <button type="submit">Send me the list</button>
   </form>
+  <p class="signup-msg" role="status" aria-live="polite" hidden></p>
   <small>No spam. Unsubscribe anytime.</small>
 </section>

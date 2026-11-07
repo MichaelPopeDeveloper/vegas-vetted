@@ -1,0 +1,11 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE } from '../site.config';
+---
+<Base title="Thanks for subscribing" description={`You're on ${SITE.newsletter.name}.`} noindex slidein={false}>
+  <div class="narrow stack" style="padding:48px 16px">
+    <h1>You're on the list</h1>
+    <p>Check your inbox for a welcome email from {SITE.newsletter.name}. If you don't see it in a few minutes, check your spam or promotions folder.</p>
+    <p><a href="/">Back to the guide →</a></p>
+  </div>
+</Base>

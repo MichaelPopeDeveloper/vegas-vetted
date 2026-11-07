@@ -1,0 +1,32 @@
+<script>
+  // Progressive enhancement: forms work without JS (POST → /thanks/), but with JS we submit in place.
+  document.querySelectorAll<HTMLFormElement>('form[data-newsletter]').forEach((form) => {
+    const msg = form.parentElement?.querySelector<HTMLElement>('.signup-msg');
+    const btn = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!btn || btn.disabled) return;
+      const label = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = 'Sending…';
+      try {
+        const res = await fetch(form.action, { method: 'POST', body: new FormData(form), headers: { Accept: 'application/json' } });
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data.ok) {
+          form.hidden = true;
+          if (msg) { msg.hidden = false; msg.textContent = "You're in! Check your inbox for the welcome email (and the list)."; }
+          try { localStorage.setItem('slidein-dismissed', String(Date.now() + 3650 * 864e5)); } catch {}
+          (window as any).va?.('event', { name: 'Newsletter Signup', data: { source: (form.elements.namedItem('source') as HTMLInputElement)?.value } });
+        } else {
+          if (msg) { msg.hidden = false; msg.textContent = data.error || 'Something went wrong. Please try again.'; }
+          btn.disabled = false;
+          btn.textContent = label;
+        }
+      } catch {
+        if (msg) { msg.hidden = false; msg.textContent = 'Network error. Please try again.'; }
+        btn.disabled = false;
+        btn.textContent = label;
+      }
+    });
+  });
+</script>

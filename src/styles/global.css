@@ -155,3 +155,6 @@ p { margin: 0; }
 .site-footer a { color: var(--muted); }
 
 .prose > * + * { margin-top: 1em; }
+
+.signup-msg { font-size: 15px; font-weight: 500; }
+.signup .signup-msg { color: #f2b8a6; }
