@@ -4,6 +4,7 @@ import { SITE } from '../site.config';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import SlideIn from '../components/SlideIn.astro';
+import Analytics from '@vercel/analytics/astro';
 
 interface Props {
   title: string;
@@ -46,5 +47,6 @@ const fullTitle = title.includes(SITE.name) ? title : `${title} | ${SITE.name}`;
     </main>
     <Footer />
     {slidein && <SlideIn />}
+    <Analytics />
   </body>
 </html>
