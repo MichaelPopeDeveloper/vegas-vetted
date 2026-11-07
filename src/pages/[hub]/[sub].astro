@@ -1,0 +1,43 @@
+---
+// Area x category pages, e.g. /henderson/plumbers/. Only generated where listings exist;
+// noindexed until they have SITE.minListingsToIndex real listings (avoids thin doorway pages).
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import PlaceCard from '../../components/PlaceCard.astro';
+import SignupInline from '../../components/SignupInline.astro';
+import { CATEGORIES, AREAS } from '../../data/taxonomy';
+import { itemList, breadcrumbs } from '../../lib/schema';
+import { SITE } from '../../site.config';
+
+export async function getStaticPaths() {
+  const places = await getCollection('places');
+  return AREAS.flatMap((area) =>
+    CATEGORIES.filter((cat) => places.some((p) => p.data.area === area.slug && p.data.category === cat.slug)).map((cat) => ({
+      params: { hub: area.slug, sub: cat.slug },
+      props: { area, cat, places: places.filter((p) => p.data.area === area.slug && p.data.category === cat.slug) },
+    })),
+  );
+}
+
+const { area, cat, places } = Astro.props;
+const h1 = `${cat.plural} in ${area.name}`;
+const crumbs = [
+  { name: 'Home', href: '/' },
+  { name: area.name, href: `/${area.slug}/` },
+  { name: cat.plural, href: `/${area.slug}/${cat.slug}/` },
+];
+const thin = places.length < SITE.minListingsToIndex || places.every((p) => p.data.sample);
+---
+<Base title={`${h1}, NV`} description={`${cat.plural} in ${area.name}, Las Vegas, hand-picked and verified by a local.`} noindex={thin} schema={[itemList(h1, places), breadcrumbs(crumbs)]}>
+  <div class="narrow stack" style="padding-top:16px;padding-bottom:32px">
+    <Breadcrumbs items={crumbs} />
+    <h1>{h1}</h1>
+    <div class="chips">
+      <a class="chip" href={`/${cat.slug}/`}>All {cat.plural.toLowerCase()} in Las Vegas</a>
+      <a class="chip" href={`/${area.slug}/`}>More in {area.name}</a>
+    </div>
+    <ul class="cards">{places.map((p) => <PlaceCard place={p} />)}</ul>
+    <SignupInline />
+  </div>
+</Base>

@@ -1,0 +1,63 @@
+---
+// Category hubs (/plumbers/) and area hubs (/henderson/) share this route.
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import PlaceCard from '../../components/PlaceCard.astro';
+import SignupInline from '../../components/SignupInline.astro';
+import { CATEGORIES, AREAS, type Category, type Area } from '../../data/taxonomy';
+import { itemList, breadcrumbs, listUrl } from '../../lib/schema';
+import { SITE } from '../../site.config';
+
+export async function getStaticPaths() {
+  const places = await getCollection('places');
+  const cats = CATEGORIES.filter((c) => places.some((p) => p.data.category === c.slug));
+  const areas = AREAS.filter((a) => places.some((p) => p.data.area === a.slug));
+  return [
+    ...cats.map((c) => ({ params: { hub: c.slug }, props: { kind: 'category' as const, cat: c } })),
+    ...areas.map((a) => ({ params: { hub: a.slug }, props: { kind: 'area' as const, area: a } })),
+  ];
+}
+
+type Props = { kind: 'category'; cat: Category } | { kind: 'area'; area: Area };
+const props = Astro.props as Props;
+const all = await getCollection('places');
+const lists = await getCollection('lists');
+
+let title: string, h1: string, intro: string, places, crumbName: string, links: { name: string; href: string }[];
+if (props.kind === 'category') {
+  const c = props.cat;
+  places = all.filter((p) => p.data.category === c.slug);
+  title = `${c.plural} in Las Vegas`;
+  h1 = `${c.plural} in Las Vegas`;
+  intro = c.intro;
+  crumbName = c.plural;
+  links = [
+    ...lists.filter((l) => l.data.category === c.slug).map((l) => ({ name: l.data.title, href: listUrl(l) })),
+    ...AREAS.filter((a) => places.some((p) => p.data.area === a.slug)).map((a) => ({ name: `${c.plural} in ${a.name}`, href: `/${a.slug}/${c.slug}/` })),
+  ];
+} else {
+  const a = props.area;
+  places = all.filter((p) => p.data.area === a.slug);
+  title = `Best of ${a.name}, Las Vegas: Food & Local Pros`;
+  h1 = `${a.name}: the local guide`;
+  intro = a.intro;
+  crumbName = a.name;
+  links = CATEGORIES.filter((c) => places.some((p) => p.data.category === c.slug)).map((c) => ({ name: `${c.plural} in ${a.name}`, href: `/${a.slug}/${c.slug}/` }));
+}
+const slug = props.kind === 'category' ? props.cat.slug : props.area.slug;
+const crumbs = [{ name: 'Home', href: '/' }, { name: crumbName, href: `/${slug}/` }];
+const thin = places.length < SITE.minListingsToIndex || places.every((p) => p.data.sample);
+---
+<Base title={title} description={`${intro} Hand-picked and verified by a local.`} noindex={thin} schema={[itemList(h1, places), breadcrumbs(crumbs)]}>
+  <div class="narrow stack" style="padding-top:16px;padding-bottom:32px">
+    <Breadcrumbs items={crumbs} />
+    <h1>{h1}</h1>
+    <p class="muted">{intro}</p>
+    {links.length > 0 && <div class="chips">{links.map((l) => <a class="chip" href={l.href}>{l.name}</a>)}</div>}
+    <ul class="cards">
+      {places.map((p) => <PlaceCard place={p} />)}
+    </ul>
+    <SignupInline />
+  </div>
+</Base>

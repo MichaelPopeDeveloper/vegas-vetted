@@ -1,0 +1,81 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import { categoryBySlug, areaBySlug } from '../../data/taxonomy';
+import { localBusiness, breadcrumbs, monthYear, mapsUrl, placeUrl, listUrl } from '../../lib/schema';
+
+export async function getStaticPaths() {
+  const places = await getCollection('places');
+  return places.map((place) => ({ params: { slug: place.id }, props: { place } }));
+}
+
+const { place } = Astro.props;
+const d = place.data;
+const cat = categoryBySlug(d.category)!;
+const area = areaBySlug(d.area)!;
+const { Content } = await render(place);
+const lists = (await getCollection('lists')).filter((l) => l.data.items.some((i) => i.id === place.id));
+const nearby = (await getCollection('places')).filter((p) => p.id !== place.id && p.data.category === d.category && p.data.area === d.area).slice(0, 4);
+const crumbs = [
+  { name: 'Home', href: '/' },
+  { name: area.name, href: `/${area.slug}/` },
+  { name: cat.plural, href: `/${area.slug}/${cat.slug}/` },
+  { name: d.name, href: placeUrl(place) },
+];
+const tel = d.phone?.replace(/[^\d+]/g, '');
+const hasTel = !!tel && /\d{7,}/.test(tel);
+const desc = `${d.name}: ${cat.name.toLowerCase()} in ${area.name}, Las Vegas. Hours, phone and our take, verified ${monthYear(d.verified)}.`;
+---
+<Base title={`${d.name} – ${area.name}, Las Vegas`} description={desc} noindex={d.sample} schema={[localBusiness(place), breadcrumbs(crumbs)]}>
+  {d.image && <img src={d.image} alt={d.name} width="1200" height="600" style="width:100%;max-height:420px;object-fit:cover" fetchpriority="high" />}
+  <div class="narrow stack" style="padding-top:16px;padding-bottom:32px">
+    <Breadcrumbs items={crumbs} />
+    <h1>{d.name}</h1>
+    <div class="card-tags">
+      <span class="tag">{cat.name}</span>
+      <span class="tag">{area.name}</span>
+      {d.price && <span class="tag">{d.price}</span>}
+      <span class="tag tag-ok">Verified {monthYear(d.verified)}</span>
+    </div>
+
+    <section class="stack" style="gap:8px">
+      <h2 class="kicker" style="font-family:var(--sans);color:var(--muted)">Our take</h2>
+      <div class="prose" style="font-size:18px"><Content /></div>
+    </section>
+
+    <dl class="facts" aria-label="Verified details">
+      {d.hours && <div><dt>Hours</dt><dd>{d.hours}</dd></div>}
+      {d.address && <div><dt>Address</dt><dd>{d.address}, {d.city}, NV {d.zip}</dd></div>}
+      {d.phone && <div><dt>Phone</dt><dd>{hasTel ? <a href={`tel:${tel}`}>{d.phone}</a> : d.phone}</dd></div>}
+      {d.license && <div><dt>License</dt><dd>{d.license}</dd></div>}
+      {d.goodFor.length > 0 && <div><dt>Good for</dt><dd>{d.goodFor.join(' · ')}</dd></div>}
+      {d.website && <div><dt>Website</dt><dd><a href={d.website} rel="noopener nofollow" target="_blank">Visit site</a></dd></div>}
+    </dl>
+
+    <a class="btn" href={mapsUrl(place)} target="_blank" rel="noopener">Open in Google Maps</a>
+
+    {lists.length > 0 && (
+      <section class="stack" style="gap:8px">
+        <h2 style="font-size:20px">Featured in</h2>
+        {lists.map((l) => <a href={listUrl(l)}>#{l.data.items.findIndex((i) => i.id === place.id) + 1} · {l.data.title} →</a>)}
+      </section>
+    )}
+
+    {nearby.length > 0 && (
+      <section class="stack" style="gap:10px">
+        <h2 style="font-size:20px">More {cat.plural.toLowerCase()} in {area.name}</h2>
+        <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px">
+          {nearby.map((p) => <a class="tile" href={placeUrl(p)}><strong style="font-size:16px">{p.data.name}</strong><span class="muted" style="font-size:13px">{p.data.price ?? cat.name}</span></a>)}
+        </div>
+      </section>
+    )}
+
+    <a href="/contact/" style="font-size:14px;color:var(--accent)">Own this business? Claim or correct this listing →</a>
+  </div>
+  <nav class="actionbar" aria-label="Quick actions">
+    {hasTel ? <a class="btn btn-primary" href={`tel:${tel}`}>Call</a> : <a class="btn btn-primary" href={`/${cat.slug}/`}>All {cat.plural.toLowerCase()}</a>}
+    <a class="btn" href={mapsUrl(place)} target="_blank" rel="noopener">Directions</a>
+    {d.website ? <a class="btn" href={d.website} rel="noopener nofollow" target="_blank">Website</a> : <a class="btn" href={`/${area.slug}/${cat.slug}/`}>More</a>}
+  </nav>
+</Base>

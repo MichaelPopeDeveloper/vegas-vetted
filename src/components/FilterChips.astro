@@ -1,0 +1,24 @@
+---
+// Filters cards in the page by area or tag. Plain JS, no framework, ~0.5 KB.
+interface Props { options: { label: string; type: 'area' | 'tag'; value: string }[]; total: number }
+const { options, total } = Astro.props;
+---
+<div class="chips" role="group" aria-label="Filter the list" data-filters>
+  <button class="chip" type="button" aria-pressed="true" data-type="all" data-value="">All {total}</button>
+  {options.map((o) => <button class="chip" type="button" aria-pressed="false" data-type={o.type} data-value={o.value}>{o.label}</button>)}
+</div>
+<script>
+  document.querySelectorAll<HTMLElement>('[data-filters]').forEach((group) => {
+    const cards = Array.from(document.querySelectorAll<HTMLElement>('.cards .card'));
+    group.addEventListener('click', (e) => {
+      const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('button[data-type]');
+      if (!btn) return;
+      group.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+      const { type, value } = btn.dataset;
+      cards.forEach((c) => {
+        const show = type === 'all' || (type === 'area' ? c.dataset.area === value : (c.dataset.tags || '').split('|').includes(value || ''));
+        c.hidden = !show;
+      });
+    });
+  });
+</script>

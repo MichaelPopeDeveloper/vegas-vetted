@@ -1,0 +1,11 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE } from '../site.config';
+---
+<Base title="About" description={`Who runs ${SITE.name} and why it exists.`}>
+  <div class="narrow stack prose" style="padding:32px 16px">
+    <h1>About {SITE.name}</h1>
+    <p>[Who you are, how long you've lived in Las Vegas, and why you started this guide. Real details build trust with readers and with Google.]</p>
+    <p>{SITE.name} is independent. Businesses can't pay to be ranked higher on our lists. Read <a href="/how-we-pick/">how we pick</a>.</p>
+  </div>
+</Base>

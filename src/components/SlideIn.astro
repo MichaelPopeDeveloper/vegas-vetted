@@ -1,0 +1,60 @@
+---
+import { SITE } from '../site.config';
+const n = SITE.newsletter;
+---
+<aside class="slidein" id="slidein" aria-labelledby="slidein-h" aria-hidden="true" hidden>
+  <div class="slidein-head">
+    <div>
+      <span class="kicker">Free list for locals</span>
+      <h2 id="slidein-h">{n.leadMagnet}</h2>
+    </div>
+    <button class="icon-btn" type="button" aria-label="Close" data-close>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b6359" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </div>
+  <p>Plus {n.name} {n.cadence.toLowerCase()}. One email, no spam.</p>
+  <form method="post" action={n.action || undefined} data-newsletter>
+    <label class="sr-only" for="slidein-email">Email address</label>
+    <input id="slidein-email" name="email" type="email" required autocomplete="email" placeholder="you@email.com" />
+    <button class="btn btn-primary" type="submit">Send it</button>
+  </form>
+</aside>
+
+<script>
+  // Opens after 50% scroll or 30s (whichever first), or on exit intent on desktop.
+  // Never on arrival, so it never counts as an intrusive interstitial. Shown once per 14 days.
+  const KEY = 'slidein-dismissed';
+  const el = document.getElementById('slidein');
+  const recentlyDismissed = () => {
+    try { return Date.now() - Number(localStorage.getItem(KEY) || 0) < 14 * 864e5; } catch { return false; }
+  };
+  if (el && !recentlyDismissed() && !document.querySelector('[data-no-slidein]')) {
+    let opened = false;
+    const open = () => {
+      if (opened) return;
+      opened = true;
+      el.hidden = false;
+      el.setAttribute('aria-hidden', 'false');
+      requestAnimationFrame(() => el.classList.add('is-open'));
+      cleanup();
+    };
+    const onScroll = () => {
+      const h = document.documentElement;
+      if (h.scrollTop / Math.max(1, h.scrollHeight - h.clientHeight) > 0.5) open();
+    };
+    const onExit = (e: MouseEvent) => { if (e.clientY <= 0) open(); };
+    const timer = window.setTimeout(open, 30000);
+    const cleanup = () => {
+      window.removeEventListener('scroll', onScroll);
+      document.removeEventListener('mouseout', onExit);
+      window.clearTimeout(timer);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    if (window.matchMedia('(min-width: 768px)').matches) document.addEventListener('mouseout', onExit);
+    el.querySelector('[data-close]')?.addEventListener('click', () => {
+      el.classList.remove('is-open');
+      el.setAttribute('aria-hidden', 'true');
+      try { localStorage.setItem(KEY, String(Date.now())); } catch {}
+    });
+  }
+</script>

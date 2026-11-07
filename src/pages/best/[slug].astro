@@ -1,0 +1,78 @@
+---
+import { getCollection, getEntries, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import PlaceCard from '../../components/PlaceCard.astro';
+import SignupInline from '../../components/SignupInline.astro';
+import FilterChips from '../../components/FilterChips.astro';
+import { categoryBySlug, areaBySlug } from '../../data/taxonomy';
+import { itemList, faqPage, breadcrumbs, monthYear, listUrl } from '../../lib/schema';
+import { SITE } from '../../site.config';
+
+export async function getStaticPaths() {
+  const lists = await getCollection('lists');
+  return lists.map((list) => ({ params: { slug: list.id }, props: { list } }));
+}
+
+const { list } = Astro.props;
+const d = list.data;
+const places = await getEntries(d.items);
+const cat = categoryBySlug(d.category)!;
+const { Content } = await render(list);
+const crumbs = [
+  { name: 'Home', href: '/' },
+  { name: cat.plural, href: `/${cat.slug}/` },
+  { name: d.title, href: listUrl(list) },
+];
+const allLists = await getCollection('lists');
+const related = allLists.filter((l) => d.related.includes(l.id));
+
+// Filter chips: areas present in this list, then the most common tags
+const areaOpts = [...new Set(places.map((p) => p.data.area))].map((a) => ({ label: areaBySlug(a)!.name, type: 'area' as const, value: a }));
+const tagCounts = new Map<string, number>();
+places.forEach((p) => p.data.tags.forEach((t) => tagCounts.set(t, (tagCounts.get(t) ?? 0) + 1)));
+const tagOpts = [...tagCounts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3).map(([t]) => ({ label: t, type: 'tag' as const, value: t.toLowerCase() }));
+const splitAt = 5;
+const allSample = places.every((p) => p.data.sample);
+---
+<Base
+  title={d.seoTitle ?? d.title}
+  description={d.description}
+  ogType="article"
+  noindex={allSample}
+  schema={[itemList(d.title, places), breadcrumbs(crumbs), ...(d.faq.length ? [faqPage(d.faq)] : [])]}
+>
+  <div class="narrow stack" style="padding-top:16px;padding-bottom:32px">
+    <Breadcrumbs items={crumbs} />
+    <h1>{d.title}</h1>
+    <div class="byline">
+      <span><strong>By {SITE.author}</strong> · <span class="tag tag-ok">Every spot checked {monthYear(d.checked)}</span></span>
+    </div>
+    <p class="answer"><strong>Top pick:</strong> {d.topPick}</p>
+    <div class="prose muted"><Content /></div>
+    {places.length > 3 && <FilterChips options={[...areaOpts, ...tagOpts]} total={places.length} />}
+
+    <ol class="cards">
+      {places.slice(0, splitAt).map((p, i) => <PlaceCard place={p} rank={i + 1} />)}
+    </ol>
+    <SignupInline />
+    {places.length > splitAt && (
+      <ol class="cards" start={splitAt + 1}>
+        {places.slice(splitAt).map((p, i) => <PlaceCard place={p} rank={splitAt + i + 1} />)}
+      </ol>
+    )}
+
+    {d.faq.length > 0 && (
+      <section class="faq stack">
+        <h2>Quick answers</h2>
+        {d.faq.map((f) => <details><summary>{f.q}</summary><p>{f.a}</p></details>)}
+      </section>
+    )}
+
+    <section class="stack">
+      <h2 style="font-size:20px">Related</h2>
+      <a href={`/${cat.slug}/`}>All {cat.plural.toLowerCase()} in Las Vegas →</a>
+      {related.map((r) => <a href={listUrl(r)}>{r.data.title} →</a>)}
+    </section>
+  </div>
+</Base>

@@ -1,0 +1,16 @@
+---
+import { SITE } from '../site.config';
+const n = SITE.newsletter;
+const id = `email-${Math.random().toString(36).slice(2, 8)}`;
+---
+<section class="signup" aria-labelledby={`${id}-h`}>
+  <span class="kicker">Free · {n.cadence}</span>
+  <h2 id={`${id}-h`}>Get {n.name}</h2>
+  <p>{n.pitch} Join and get our "{n.leadMagnet}" list today.</p>
+  <form method="post" action={n.action || undefined} data-newsletter>
+    <label class="sr-only" for={id}>Email address</label>
+    <input id={id} name="email" type="email" required autocomplete="email" placeholder="you@email.com" />
+    <button type="submit">Send me the list</button>
+  </form>
+  <small>No spam. Unsubscribe anytime.</small>
+</section>

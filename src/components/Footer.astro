@@ -1,0 +1,15 @@
+---
+import { SITE } from '../site.config';
+const year = new Date().getFullYear();
+---
+<footer class="site-footer">
+  <div class="wrap">
+    <span>© {year} {SITE.name} · Independent, locally run</span>
+    <nav aria-label="Footer">
+      <a href="/about/">About</a>
+      <a href="/how-we-pick/">How we pick</a>
+      <a href="/contact/">Claim a listing</a>
+      <a href="/contact/">Contact</a>
+    </nav>
+  </div>
+</footer>

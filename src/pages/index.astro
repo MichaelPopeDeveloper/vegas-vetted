@@ -1,0 +1,64 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import SignupInline from '../components/SignupInline.astro';
+import { AREAS, CATEGORIES, categoryBySlug } from '../data/taxonomy';
+import { listUrl, monthYear, abs } from '../lib/schema';
+import { SITE } from '../site.config';
+
+const lists = await getCollection('lists');
+const places = await getCollection('places');
+const areas = AREAS.filter((a) => places.some((p) => p.data.area === a.slug));
+const services = CATEGORIES.filter((c) => c.group === 'services' && places.some((p) => p.data.category === c.slug));
+const website = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: SITE.name,
+  url: abs('/'),
+  description: SITE.description,
+};
+---
+<Base title={`${SITE.name}: Las Vegas Restaurants & Local Pros, Checked by a Local`} description={SITE.description} schema={[website]}>
+  <section class="hero">
+    <div class="wrap stack" style="gap:20px">
+      <span class="kicker">Las Vegas · Henderson · Summerlin</span>
+      <h1 style="max-width:820px">{SITE.tagline}</h1>
+      <p>Hand-picked restaurants and trusted pros across the Valley, every listing verified and dated. No paid rankings, no tourist traps.</p>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0">
+    <div class="wrap stack" style="gap:20px">
+      <h2>Most-read lists</h2>
+      <div class="grid">
+        {lists.map((l) => (
+          <a class="tile" href={listUrl(l)}>
+            <span class="kicker" style="color:var(--muted)">{categoryBySlug(l.data.category)?.plural}</span>
+            <strong>{l.data.title}</strong>
+            <span style="font-size:13px;color:var(--sage)">Checked {monthYear(l.data.checked)}</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  {services.length > 0 && (
+    <section class="section" style="padding-top:0">
+      <div class="wrap stack">
+        <h2>Trusted local pros</h2>
+        <div class="chips" style="flex-wrap:wrap">{services.map((c) => <a class="chip" href={`/${c.slug}/`}>{c.plural}</a>)}</div>
+      </div>
+    </section>
+  )}
+
+  <section class="section" style="padding-top:0">
+    <div class="wrap stack">
+      <h2>Browse by neighborhood</h2>
+      <div class="chips" style="flex-wrap:wrap">{areas.map((a) => <a class="chip" href={`/${a.slug}/`}>{a.name}</a>)}</div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0">
+    <div class="wrap"><SignupInline /></div>
+  </section>
+</Base>
